@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>whatIF Tool</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #111;
+            color: #FFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1100px;
+            width: 90%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            gap: 20px;
+        }
+
+        .left, .right {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .input-box, .output-box {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFF;
+            resize: vertical;
+        }
+
+        .output-box {
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+
+        .submit-btn {
+            margin-top: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #FFF;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .submit-btn:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Loading overlay styles */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #FFF;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <h2>Input</h2>
+            <textarea class="input-box" id="input-box" placeholder="Enter your scenario or requirements..."></textarea>
+            <button class="submit-btn" id="submit-btn">Generate Threat Scenarios</button>
+        </div>
+        <div class="right">
+            <h2>Output</h2>
+            <div class="output-box" id="output-box"></div>
+        </div>
+    </div>
+    <!-- Loading overlay -->
+    <div class="overlay" id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Function to toggle the loading overlay
+        function toggleLoadingOverlay(show) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Detect "Shift + Enter" and trigger button click
+        document.querySelector('.input-box').addEventListener('keydown', function(event) {
+            if (event.shiftKey && event.keyCode === 13) {
+                event.preventDefault(); // Prevent new line
+                document.querySelector('.submit-btn').click();
+            }
+        });
+
+        // Send a POST request to the server when the button is clicked
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            toggleLoadingOverlay(true);  // Show loading overlay
+            
+            const inputBox = document.getElementById('input-box');
+            const outputBox = document.getElementById('output-box');
+            const userText = inputBox.value;
+
+            try {
+                const response = await fetch('https://hello-world-wandering-scene-a1d4.jamieson9964.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: userText }),
+                });
+                const result = await response.json();
+                outputBox.textContent = result;
+
+            } catch (error) {
+                outputBox.textContent = 'An error occurred.';
+            } finally {
+                toggleLoadingOverlay(false);  // Hide loading overlay
+            }
+        });
+    </script>
+</body>
+
+</html>
